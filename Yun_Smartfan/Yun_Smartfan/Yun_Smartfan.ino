@@ -4,12 +4,12 @@
 // Code from both great sources mixed and matched by Jay Doscher www.polyideas.com
 
 //This project uses the following components:
-// Arduino Yun
-// Pololu Motor Control Shield (WARNING: Disable the power jumper on this board- if you don't this shield will fry the Yun!
-// Adafruit DHT-22
-// Sparkfun Ptotoshield
-// Stackable headers
-// Breakaway headers
+// Arduino Yun: http://www.amazon.com/gp/product/B00F6YJK3S/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B00F6YJK3S&linkCode=as2&tag=86753090e-20
+// Pololu Motor Control Shield (WARNING: Disable the power jumper on this board- if you don't this shield will fry the Yun! http://www.pololu.com/product/2503
+// Adafruit DHT-22: http://www.adafruit.com/products/385
+// Sparkfun Protoshield: https://www.sparkfun.com/products/11665
+// Stackable headers: http://www.adafruit.com/products/85
+// Breakaway headers: http://www.adafruit.com/products/392
 
 #define TEMBOO_ACCOUNT "your_temboo_account"  // your Temboo account name 
 #define TEMBOO_APP_KEY_NAME "your_app_key_name"  // your Temboo app key name

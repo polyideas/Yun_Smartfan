@@ -23,8 +23,9 @@ https://github.com/adafruit/DHT-sensor-library
 More information and projects can be found at:
 http://polyideas.com
 */
-#include "DualMC33926MotorShield.h"
 
+// Sketch Includes
+#include "DualMC33926MotorShield.h"
 #include <Bridge.h>
 #include <Temboo.h>
 
@@ -72,13 +73,18 @@ DHT dht(DHTPIN, DHTTYPE);
 DualMC33926MotorShield md;
 int motorAspeed;
 int motorBspeed;
+// Temperature variables
 float tC;
 float t;
 
 void setup() {
-
+// Initialize the Adafruit DHT library
   dht.begin();
+  
+// Initialize the Yun Bridge library  
   Bridge.begin();
+  
+// Initialize the Pololu MD motor library  
   md.init(); // Motor control init
 
 }
@@ -89,16 +95,20 @@ void loop() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
   float tC = dht.readTemperature();
-  //convert from C to F
+  
+  //convert from Celsius to Farenheit
   t = ((tC * 1.8)+32);
   
-  if (t < 70)
+  // Lowest temperature threshold means the fans are off
+  if (t <= 80)
   {
     motorAspeed = 0;
     motorBspeed = 0;
     md.setM1Speed(motorAspeed);  // Set motor A
     md.setM2Speed(motorBspeed);  // Set motor B
   }
+  
+  // Turn on the upper cabinet fan on a low speed
   if (t > 80)
   {
     motorAspeed = 100;
@@ -106,6 +116,8 @@ void loop() {
     md.setM1Speed(motorAspeed);  // Set motor A
     md.setM2Speed(motorBspeed);  // Set motor B
   }
+  
+  // Turn on both input and exhaust fans on 50% speed
   if (t > 90)
   {
     motorAspeed = 200;
@@ -114,7 +126,8 @@ void loop() {
     md.setM2Speed(motorBspeed);  // Set motor B
   }
 
-  if (t >= 100)
+  // Turn on both fans at 75% speed
+  if (t > 100)
   {
     motorAspeed = 300;
     motorBspeed = 300;
@@ -122,6 +135,7 @@ void loop() {
     md.setM2Speed(motorBspeed);  // Set motor B
   }
 
+// Turn on both fans at full speed
   if (t > 110)
   {
     motorAspeed = 400;

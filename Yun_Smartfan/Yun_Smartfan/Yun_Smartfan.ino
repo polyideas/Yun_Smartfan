@@ -37,19 +37,15 @@ http://polyideas.com
 const String GOOGLE_USERNAME = "your_gmail_account@gmail.com";
 const String GOOGLE_PASSWORD = "your_gmail_password";
 
+
 // the title of the spreadsheet you want to send data to
 // (Note that this must actually be the title of a Google spreadsheet
 // that exists in your Google Drive/Docs account, and is configured
 // as described above.)
 const String SPREADSHEET_TITLE = "your_spreadsheet_name";
 
-const unsigned long RUN_INTERVAL_MILLIS = 300000; // how often to run the Choreo (in milliseconds)
-
-// the last time we ran the Choreo
-// (initialized to 60 seconds ago so the
-// Choreo is run immediately when we start up)
-unsigned long lastRun = (unsigned long) - RUN_INTERVAL_MILLIS;
-
+int intervalInt;
+int triggerInt = 300;
 
 //Initialize the Adafruit DHT library, which you can get here:
 // https://github.com/adafruit/DHT-sensor-library
@@ -78,13 +74,13 @@ float tC;
 float t;
 
 void setup() {
-// Initialize the Adafruit DHT library
+  // Initialize the Adafruit DHT library
   dht.begin();
-  
-// Initialize the Yun Bridge library  
+
+  // Initialize the Yun Bridge library
   Bridge.begin();
-  
-// Initialize the Pololu MD motor library  
+
+  // Initialize the Pololu MD motor library
   md.init(); // Motor control init
 
 }
@@ -95,10 +91,10 @@ void loop() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
   float tC = dht.readTemperature();
-  
+
   //convert from Celsius to Farenheit
-  t = ((tC * 1.8)+32);
-  
+  t = ((tC * 1.8) + 32);
+
   // Lowest temperature threshold means the fans are off
   if (t <= 80)
   {
@@ -107,7 +103,7 @@ void loop() {
     md.setM1Speed(motorAspeed);  // Set motor A
     md.setM2Speed(motorBspeed);  // Set motor B
   }
-  
+
   // Turn on the upper cabinet fan on a low speed
   if (t > 80)
   {
@@ -116,7 +112,7 @@ void loop() {
     md.setM1Speed(motorAspeed);  // Set motor A
     md.setM2Speed(motorBspeed);  // Set motor B
   }
-  
+
   // Turn on both input and exhaust fans on 50% speed
   if (t > 90)
   {
@@ -135,7 +131,7 @@ void loop() {
     md.setM2Speed(motorBspeed);  // Set motor B
   }
 
-// Turn on both fans at full speed
+  // Turn on both fans at full speed
   if (t > 110)
   {
     motorAspeed = 400;
@@ -144,17 +140,10 @@ void loop() {
     md.setM2Speed(motorBspeed);  // Set motor B
   }
 
-  // get the number of milliseconds this sketch has been running
-  unsigned long now = millis();
-
   // run again if it's been 60 seconds since we last ran
-  if (now - lastRun >= RUN_INTERVAL_MILLIS) {
-
-    // remember 'now' as the last time we ran the choreo
-    lastRun = now;
-
-    // get the value we want to append to our spreadsheet
-    //    unsigned long sensorValue = getSensorValue();
+  if (intervalInt == triggerInt) {
+    // reset the interval to 0
+    intervalInt = 0;
 
     Serial.println("Appending value to spreadsheet...");
 
@@ -217,8 +206,9 @@ void loop() {
 
     // return code of zero (0) means success
     if (returnCode == 0) {
-      Serial.println("Success! Appended " + rowData);
+      Serial.println("Appended " + rowData);
       Serial.println("");
+      Serial.println(intervalInt);
     } else {
       // return code of anything other than zero means failure
       // read and display any error messages
@@ -231,4 +221,6 @@ void loop() {
     AppendRowChoreo.close();
   }
   delay(3000);
+  intervalInt = (intervalInt + 3);
+  Serial.println(intervalInt);
 }

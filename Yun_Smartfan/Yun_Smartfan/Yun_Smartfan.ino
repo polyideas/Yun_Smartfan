@@ -37,21 +37,26 @@ http://polyideas.com
 const String GOOGLE_USERNAME = "your_gmail_account@gmail.com";
 const String GOOGLE_PASSWORD = "your_gmail_password";
 
-
 // the title of the spreadsheet you want to send data to
 // (Note that this must actually be the title of a Google spreadsheet
 // that exists in your Google Drive/Docs account, and is configured
 // as described above.)
 const String SPREADSHEET_TITLE = "your_spreadsheet_name";
 
+// Our interval duration that matches the delay at the end of the script
 int intervalInt;
-int triggerInt = 300;
+// How often we update Temboo in seconds
+int triggerInt = 600;
+// Interval for counting time since we renewed our DHCP lease. This is important for most cases when you get an
+// automatic IP address- when the address lease expires, the sketch will stop updating Temboo unless we renew the lease
+int dhcpcount;
+// This is the lease duration in seconds, or ideally a number lower than your lease duration.
+// 10800 is 3 hours, so the networking will be restarted every three hours to keep getting a fresh IP.
+int dhcpInt = 10800;
 
 //Initialize the Adafruit DHT library, which you can get here:
 // https://github.com/adafruit/DHT-sensor-library
 #include "DHT.h"
-
-
 #define DHTPIN 2     // what pin we're connected to
 
 // Uncomment whatever type you're using!
@@ -140,6 +145,19 @@ void loop() {
     md.setM2Speed(motorBspeed);  // Set motor B
   }
 
+// Let's define a process() so we can call the Linux command to restart the network stack
+  Process p;
+
+  // run again if it's been 60 seconds since we last ran
+  if (dhcpcount > dhcpInt) {
+    // reset the interval to 0
+    dhcpcount = 0;
+    // Restart the network stack to renew our lease.
+    p.runShellCommand("/etc/init.d/network  restart");
+    // Don't do anything while we are waiting for the command to complete.
+    while (p.running());
+  }
+
   // run again if it's been 60 seconds since we last ran
   if (intervalInt == triggerInt) {
     // reset the interval to 0
@@ -222,5 +240,6 @@ void loop() {
   }
   delay(3000);
   intervalInt = (intervalInt + 3);
+  dhcpcount = (dhcpcount + 3);
   Serial.println(intervalInt);
 }
